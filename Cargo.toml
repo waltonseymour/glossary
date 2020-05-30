@@ -1,5 +1,5 @@
 [package]
-name = "indexer"
+name = "glossary"
 version = "0.1.0"
 authors = ["walt <walton.l.seymour@gmail.com>"]
 edition = "2018"
