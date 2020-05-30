@@ -21,12 +21,12 @@ pub fn generate_index(f: File) {
 
     let mut offsets = std::vec::Vec::<KeyOffset>::new();
 
-    for row in reader.records() {
-        let record = row.unwrap();
+    for row in reader.byte_records() {
+        let record = row.expect("could not parse csv");
         let pos = record.position().unwrap();
         let key = record.index(3).to_owned();
         offsets.push(KeyOffset {
-            key: key,
+            key: std::str::from_utf8(&key).unwrap().to_owned(),
             offset: pos.byte(),
         });
     }
