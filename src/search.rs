@@ -49,7 +49,7 @@ pub fn search(top_index: &mut File, index: &mut File, key: String) -> Option<Key
     let mut min = 0;
     let mut max = total_elements - 1;
 
-    while max - min > 0 {
+    while max - min > 1 {
         let midpoint = min + ((max - min) / 2);
 
         let offset = get_nth_element(top_index, index, midpoint);
@@ -88,5 +88,19 @@ mod tests {
 
         assert_eq!(offset.key, "ckamanek@jimdo.com");
         assert_eq!(offset.offset, 32490)
+    }
+
+    #[test]
+    fn test_bad_search() {
+        let f = File::open("MOCK_DATA.csv").expect("count not find data file");
+        generate_index(f);
+
+        let mut index = std::fs::File::open(".glossary/index.bin").expect("failed to open index");
+        let mut top_index =
+            std::fs::File::open(".glossary/top_index.bin").expect("failed to open top index");
+
+        let offset = search(&mut top_index, &mut index, String::from("asdfasdfasd"));
+
+        assert_eq!(offset.is_none(), true);
     }
 }
