@@ -91,11 +91,13 @@ pub fn generate_index(f: File, key_index: usize) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::BufRead;
     use std::io::Read;
+    use std::io::Seek;
     #[test]
     fn test_generate_index() {
         let f = File::open("MOCK_DATA.csv").expect("count not find data file");
-        generate_index(f);
+        generate_index(f, 3);
 
         // test top level index
         let mut top_index = File::open(".glossary/top_index.bin").unwrap();
