@@ -55,11 +55,11 @@ pub fn generate_index(f: &mut File, key_index: usize) {
     std::fs::create_dir_all(".glossary").expect("could not create dir");
     let mut reader = csv::Reader::from_reader(f);
 
-    let sorted = File::create(".glossary/sorted_offsets.csv").expect("could not create file");
     let mut cmd = std::process::Command::new("sort")
+        .arg("-o")
+        .arg(".glossary/sorted_offsets.csv")
         .arg("-")
         .stdin(std::process::Stdio::piped())
-        .stdout(sorted)
         .spawn()
         .expect("failed to spawn sort command");
 
@@ -95,7 +95,7 @@ mod tests {
     use std::io::Seek;
     #[test]
     fn test_generate_index() {
-        let f = File::open("MOCK_DATA.csv").expect("count not find data file");
+        let mut f = File::open("MOCK_DATA.csv").expect("count not find data file");
         generate_index(&mut f, 3);
 
         // test top level index

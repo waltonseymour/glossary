@@ -48,10 +48,12 @@ fn search(top_index: &mut File, index: &mut File, key: String) -> Option<KeyOffs
     let total_elements = top_index.metadata().expect("could not get metadata").len() / 16;
 
     let mut min = 0;
-    let mut max = total_elements - 1;
+    let mut max = total_elements;
 
-    while max - min > 1 {
+    let mut size: u64 = total_elements;
+    while size > 0 {
         let midpoint = min + ((max - min) / 2);
+        size /= 2;
 
         let offset = get_nth_element(top_index, index, midpoint);
 
@@ -107,6 +109,18 @@ mod tests {
             row,
             "525,Corrinne,Kaman,ckamanek@jimdo.com,Female,23.16.105.124\n"
         );
+
+        let row = get_matching_row(&mut f, String::from("aarndtsenk6@marriott.com")).unwrap();
+        assert_eq!(
+            row,
+            "727,Antone,Arndtsen,aarndtsenk6@marriott.com,Male,251.8.128.77\n"
+        );
+
+        let row = get_matching_row(&mut f, String::from("zsparksoz@twitter.com")).unwrap();
+        assert_eq!(
+            row,
+            "900,Zonnya,Sparks,zsparksoz@twitter.com,Female,248.252.234.26\n"
+        );
     }
 
     #[test]
@@ -117,7 +131,15 @@ mod tests {
         let offset = find_key(String::from("ckamanek@jimdo.com")).unwrap();
 
         assert_eq!(offset.key, "ckamanek@jimdo.com");
-        assert_eq!(offset.offset, 32490)
+        assert_eq!(offset.offset, 32490);
+
+        let offset = find_key(String::from("aarndtsenk6@marriott.com")).unwrap();
+        assert_eq!(offset.key, "aarndtsenk6@marriott.com");
+        assert_eq!(offset.offset, 44971);
+
+        let offset = find_key(String::from("zsparksoz@twitter.com")).unwrap();
+        assert_eq!(offset.key, "zsparksoz@twitter.com");
+        assert_eq!(offset.offset, 55806);
     }
 
     #[test]
