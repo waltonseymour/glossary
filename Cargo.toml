@@ -6,6 +6,9 @@ authors = ["Walton Seymour <walton.l.seymour@gmail.com>"]
 edition = "2018"
 repository = "https://github.com/waltonseymour/glossary/"
 license = "MIT"
+exclude = [
+    "*.csv",
+]
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
