@@ -51,7 +51,7 @@ fn write_index() {
     top_level_writer.flush().expect("failed to flush writer");
 }
 
-pub fn generate_index(f: File, key_index: usize) {
+pub fn generate_index(f: &mut File, key_index: usize) {
     std::fs::create_dir_all(".glossary").expect("could not create dir");
     let mut reader = csv::Reader::from_reader(f);
 
@@ -96,7 +96,7 @@ mod tests {
     #[test]
     fn test_generate_index() {
         let f = File::open("MOCK_DATA.csv").expect("count not find data file");
-        generate_index(f, 3);
+        generate_index(&mut f, 3);
 
         // test top level index
         let mut top_index = File::open(".glossary/top_index.bin").unwrap();

@@ -95,10 +95,24 @@ pub fn get_matching_row(data_file: &mut File, key: String) -> Option<String> {
 mod tests {
     use super::super::write::generate_index;
     use super::*;
+
+    #[test]
+    fn test_get_matching_row() {
+        let mut f = File::open("MOCK_DATA.csv").expect("count not find data file");
+        generate_index(&mut f, 3);
+
+        let row = get_matching_row(&mut f, String::from("ckamanek@jimdo.com")).unwrap();
+
+        assert_eq!(
+            row,
+            "525,Corrinne,Kaman,ckamanek@jimdo.com,Female,23.16.105.124\n"
+        );
+    }
+
     #[test]
     fn test_search() {
-        let f = File::open("MOCK_DATA.csv").expect("count not find data file");
-        generate_index(f, 3);
+        let mut f = File::open("MOCK_DATA.csv").expect("count not find data file");
+        generate_index(&mut f, 3);
 
         let offset = find_key(String::from("ckamanek@jimdo.com")).unwrap();
 
@@ -108,8 +122,8 @@ mod tests {
 
     #[test]
     fn test_bad_search() {
-        let f = File::open("MOCK_DATA.csv").expect("count not find data file");
-        generate_index(f, 3);
+        let mut f = File::open("MOCK_DATA.csv").expect("count not find data file");
+        generate_index(&mut f, 3);
 
         let mut index = std::fs::File::open(".glossary/index.bin").expect("failed to open index");
         let mut top_index =
