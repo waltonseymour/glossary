@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::io::BufRead;
 use std::io::Read;
 use std::io::Seek;
 
@@ -72,6 +73,22 @@ pub fn find_key(key: String) -> Option<KeyOffset> {
         std::fs::File::open(".glossary/top_index.bin").expect("failed to open top index");
 
     search(&mut top_index, &mut index, key)
+}
+
+pub fn get_matching_row(data_file: &mut File, key: String) -> Option<String> {
+    let offset = find_key(key);
+    match offset {
+        Some(x) => {
+            data_file
+                .seek(std::io::SeekFrom::Start(x.offset))
+                .expect("could not seek file");
+            let mut reader = std::io::BufReader::new(data_file);
+            let mut row = std::string::String::new();
+            reader.read_line(&mut row).expect("could not read row");
+            Some(row)
+        }
+        None => None,
+    }
 }
 
 #[cfg(test)]

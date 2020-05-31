@@ -1,6 +1,4 @@
 use std::fs::File;
-use std::io::BufRead;
-use std::io::Seek;
 use std::io::Write;
 use std::ops::Index;
 
@@ -8,18 +6,6 @@ use std::ops::Index;
 pub struct KeyOffset {
     pub key: String,
     pub offset: u64,
-}
-
-fn write_unsorted_offsets(offsets: Vec<KeyOffset>) {
-    let mut csv_writer = csv::Writer::from_path(".glossary/unsorted-offsets.csv")
-        .expect("could not create temp file");
-
-    for o in offsets {
-        csv_writer
-            .write_record(&[o.key, o.offset.to_string()])
-            .expect("could not write record");
-    }
-    csv_writer.flush().expect("could not flush csv");
 }
 
 fn sort_offsets() {
@@ -39,25 +25,19 @@ fn write_index() {
     let mut writer = std::io::BufWriter::new(index);
     let mut top_level_writer = std::io::BufWriter::new(top_level_index);
 
-    //  populate offset vector from disk
+    let mut top_level_offset: usize = 0;
     let mut reader = csv::ReaderBuilder::new()
         .has_headers(false)
         .from_path(".glossary/sorted_offsets.csv")
         .expect("could not read sorted offsets");
-    let mut offsets = std::vec::Vec::<KeyOffset>::new();
     for row in reader.records() {
         let record = row.expect("could not parse csv");
-        println!("{:?}", record);
-        offsets.push(KeyOffset {
+
+        let o = KeyOffset {
             key: record.index(0).to_owned(),
             offset: record.index(1).parse::<u64>().unwrap(),
-        });
-    }
+        };
 
-    let mut top_level_offset: usize = 0;
-
-    // generate index entries in index and top_index
-    for o in offsets {
         let key_bytes = o.key.as_bytes();
         let num_key_bytes = key_bytes.len();
 
@@ -81,23 +61,29 @@ fn write_index() {
     top_level_writer.flush().expect("failed to flush writer");
 }
 
-pub fn generate_index(f: File) {
+pub fn generate_index(f: File, key_index: usize) {
     std::fs::create_dir_all(".glossary").expect("could not create dir");
     let mut reader = csv::Reader::from_reader(f);
 
-    let mut offsets = std::vec::Vec::<KeyOffset>::new();
+    let mut csv_writer = csv::Writer::from_path(".glossary/unsorted-offsets.csv")
+        .expect("could not create temp file");
 
     for row in reader.byte_records() {
         let record = row.expect("could not parse csv");
         let pos = record.position().unwrap();
-        let key = record.index(3).to_owned();
-        offsets.push(KeyOffset {
-            key: std::str::from_utf8(&key).unwrap().to_owned(),
-            offset: pos.byte(),
-        });
+        let key = record.index(key_index).to_owned();
+
+        csv_writer
+            .write_record(&[
+                std::str::from_utf8(&key).unwrap().to_owned(),
+                pos.byte().to_string(),
+            ])
+            .expect("could not write record");
     }
 
-    write_unsorted_offsets(offsets);
+    csv_writer.flush().expect("could not flush csv");
+    drop(csv_writer);
+
     sort_offsets();
     write_index();
 }
