@@ -53,7 +53,9 @@ fn write_index() {
 
 pub fn generate_index(f: &mut File, key_index: usize) {
     std::fs::create_dir_all(".glossary").expect("could not create dir");
-    let mut reader = csv::Reader::from_reader(f);
+    let mut reader = csv::ReaderBuilder::new()
+        .terminator(csv::Terminator::Any(b'\n'))
+        .from_reader(f);
 
     let mut cmd = std::process::Command::new("sort")
         .arg("-o")
