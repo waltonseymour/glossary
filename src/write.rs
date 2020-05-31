@@ -8,16 +8,6 @@ pub struct KeyOffset {
     pub offset: u64,
 }
 
-fn sort_offsets() {
-    let sorted = File::create(".glossary/sorted_offsets.csv").expect("could not create file");
-
-    std::process::Command::new("sort")
-        .arg(".glossary/unsorted-offsets.csv")
-        .stdout(sorted)
-        .output()
-        .expect("failed to spawn sort command");
-}
-
 fn write_index() {
     let index = File::create(".glossary/index.bin").expect("could not create file");
     let top_level_index = File::create(".glossary/top_index.bin").expect("could not create file");
@@ -65,8 +55,16 @@ pub fn generate_index(f: File, key_index: usize) {
     std::fs::create_dir_all(".glossary").expect("could not create dir");
     let mut reader = csv::Reader::from_reader(f);
 
-    let mut csv_writer = csv::Writer::from_path(".glossary/unsorted-offsets.csv")
-        .expect("could not create temp file");
+    let sorted = File::create(".glossary/sorted_offsets.csv").expect("could not create file");
+    let mut cmd = std::process::Command::new("sort")
+        .arg("-")
+        .stdin(std::process::Stdio::piped())
+        .stdout(sorted)
+        .spawn()
+        .expect("failed to spawn sort command");
+
+    let mut csv_writer =
+        csv::Writer::from_writer(cmd.stdin.as_mut().expect("could not pipe data to sort"));
 
     for row in reader.byte_records() {
         let record = row.expect("could not parse csv");
@@ -84,7 +82,8 @@ pub fn generate_index(f: File, key_index: usize) {
     csv_writer.flush().expect("could not flush csv");
     drop(csv_writer);
 
-    sort_offsets();
+    cmd.wait().expect("sort failed");
+
     write_index();
 }
 
