@@ -1,8 +1,12 @@
 [package]
 name = "glossary"
+description = "A fast and lightweight flat-file indexer"
 version = "0.1.0"
-authors = ["walt <walton.l.seymour@gmail.com>"]
+authors = ["Walton Seymour <walton.l.seymour@gmail.com>"]
 edition = "2018"
+repository = "https://github.com/waltonseymour/glossary/"
+license = "MIT"
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
