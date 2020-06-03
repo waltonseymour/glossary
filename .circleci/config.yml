@@ -1,9 +1,0 @@
-version: 2
-jobs:
-  build:
-    docker:
-      - image: rust:latest
-    steps:
-      - checkout
-      - run: cargo build
-      - run: cargo test -- --test-threads=1
