@@ -1,7 +1,7 @@
 [package]
 name = "glossary"
 description = "A fast and lightweight flat-file indexer"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Walton Seymour <walton.l.seymour@gmail.com>"]
 edition = "2018"
 repository = "https://github.com/waltonseymour/glossary/"
