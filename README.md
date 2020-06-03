@@ -12,4 +12,4 @@ To index the first column of the csv:
 
 After the index has been generated:
 
-`glossary find user@email.com`
+`glossary find data.csv user@email.com`
