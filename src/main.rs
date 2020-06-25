@@ -12,6 +12,7 @@ fn main() {
         .subcommand(
             SubCommand::with_name("index")
                 .arg(Arg::with_name("file").required(true))
+                .arg(Arg::with_name("delimiter").default_value(","))
                 .arg(Arg::with_name("key_index").default_value("0")),
         )
         .subcommand(
@@ -31,7 +32,12 @@ fn main() {
                 .parse::<usize>()
                 .expect("could not parse key_index");
 
-            write::generate_index(&mut f, key_index);
+            let delimiter = sub_m
+                .value_of("delimiter")
+                .expect("no delimiter passed")
+                .as_bytes()[0];
+
+            write::generate_index(&mut f, key_index, delimiter);
         }
         ("find", Some(sub_m)) => {
             let filename = sub_m.value_of("file").expect("no filename passed");
