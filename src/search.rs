@@ -101,7 +101,7 @@ mod tests {
     #[test]
     fn test_get_matching_row() {
         let mut f = File::open("MOCK_DATA.csv").expect("count not find data file");
-        generate_index(&mut f, 3, b',');
+        generate_index(&mut f, 3, ',');
 
         let row = get_matching_row(&mut f, String::from("ckamanek@jimdo.com")).unwrap();
 
@@ -126,7 +126,7 @@ mod tests {
     #[test]
     fn test_search() {
         let mut f = File::open("MOCK_DATA.csv").expect("count not find data file");
-        generate_index(&mut f, 3, b',');
+        generate_index(&mut f, 3, ',');
 
         let offset = find_key(String::from("ckamanek@jimdo.com")).unwrap();
 
@@ -145,7 +145,7 @@ mod tests {
     #[test]
     fn test_bad_search() {
         let mut f = File::open("MOCK_DATA.csv").expect("count not find data file");
-        generate_index(&mut f, 3, b',');
+        generate_index(&mut f, 3, ',');
 
         let mut index = std::fs::File::open(".glossary/index.bin").expect("failed to open index");
         let mut top_index =

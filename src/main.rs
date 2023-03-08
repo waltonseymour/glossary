@@ -1,50 +1,60 @@
 extern crate clap;
 
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{Arg, Command};
 mod search;
 mod write;
 
 fn main() {
-    let matches = App::new("glossary")
-        .version("0.1.0")
+    let matches = Command::new("glossary")
+        .bin_name("glossary")
+        .subcommand_required(true)
+        .version("0.2.0")
         .about("Fast and lightweight flat file indexer")
-        .setting(AppSettings::ArgRequiredElseHelp)
         .subcommand(
-            SubCommand::with_name("index")
-                .arg(Arg::with_name("file").required(true))
-                .arg(Arg::with_name("delimiter").default_value(","))
-                .arg(Arg::with_name("key_index").default_value("0")),
+            Command::new("index")
+                .arg(Arg::new("file").required(true))
+                .arg(
+                    Arg::new("delimiter")
+                        .default_value(",")
+                        .value_parser(clap::value_parser!(char))
+                        .short('d')
+                        .long("delimiter"),
+                )
+                .arg(
+                    Arg::new("key_index")
+                        .value_parser(clap::value_parser!(usize))
+                        .default_value("0")
+                        .short('k')
+                        .long("key-index"),
+                ),
         )
         .subcommand(
-            SubCommand::with_name("find")
-                .arg(Arg::with_name("file").required(true))
-                .arg(Arg::with_name("key").required(true)),
+            Command::new("find")
+                .arg(Arg::new("file").required(true))
+                .arg(Arg::new("key").required(true)),
         )
         .get_matches();
 
     match matches.subcommand() {
-        ("index", Some(sub_m)) => {
-            let filename = sub_m.value_of("file").expect("no filename passed");
+        Some(("index", sub_m)) => {
+            let filename = sub_m.get_one::<String>("file").expect("no filename passed");
             let mut f = std::fs::File::open(filename).expect("could not open file");
             let key_index = sub_m
-                .value_of("key_index")
-                .expect("no key_index passed")
-                .parse::<usize>()
-                .expect("could not parse key_index");
+                .get_one::<usize>("key_index")
+                .expect("no key_index passed");
 
             let delimiter = sub_m
-                .value_of("delimiter")
-                .expect("no delimiter passed")
-                .as_bytes()[0];
+                .get_one::<char>("delimiter")
+                .expect("no delimiter passed");
 
-            write::generate_index(&mut f, key_index, delimiter);
+            write::generate_index(&mut f, *key_index, *delimiter);
         }
-        ("find", Some(sub_m)) => {
-            let filename = sub_m.value_of("file").expect("no filename passed");
+        Some(("find", sub_m)) => {
+            let filename = sub_m.get_one::<String>("file").expect("no filename passed");
             let mut f = std::fs::File::open(filename).expect("could not open file");
-            let key = sub_m.value_of("key").expect("no key passed");
+            let key = sub_m.get_one::<String>("key").expect("no key passed");
 
-            let entry = search::get_matching_row(&mut f, String::from(key));
+            let entry = search::get_matching_row(&mut f, key.clone());
             println!("{:?}", entry);
         }
         _ => {}
