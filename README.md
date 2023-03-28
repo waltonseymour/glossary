@@ -13,3 +13,9 @@ To index the first column of the csv:
 After the index has been generated:
 
 `glossary find data.csv user@email.com`
+
+
+### Alternative impls of index format
+
+* [`Python`](https://github.com/KOLANICH-libs/glossary.py)
+* [`Kaitai Struct`](https://github.com/KOLANICH-specs/kaitai_struct_formats/blob/glossary_index/database/glossary_index.ksy)
